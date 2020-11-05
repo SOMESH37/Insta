@@ -20,6 +20,9 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => MyTheme(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => Auth(),
+        ),
       ],
       builder: (cxt, _) {
         return NotificationListener<OverscrollIndicatorNotification>(

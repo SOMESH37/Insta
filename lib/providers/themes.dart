@@ -47,6 +47,9 @@ class MyTheme extends ChangeNotifier {
       ),
       buttonColor: Color(0xff1477f8),
     ),
+    dividerTheme: DividerThemeData(
+      thickness: 2,
+    ),
     scaffoldBackgroundColor: Color(0xfff3f7fd), //(0xfff3f7f8)
     textTheme: TextTheme(
       // default text, textField text

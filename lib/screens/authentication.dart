@@ -1,7 +1,33 @@
 import '../helper.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-class LandingPage extends StatelessWidget {
+GoogleSignIn gSignUp = GoogleSignIn(scopes: ['email', 'profile']);
+GoogleSignInAccount cAccount;
+
+Map<String, String> formData = {
+  'email': null,
+  'password': null,
+  'name': null,
+  'userName': null,
+  'rePwd': null,
+};
+
+class LandingPage extends StatefulWidget {
+  @override
+  _LandingPageState createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  @override
+  void initState() {
+    super.initState();
+    gSignUp.disconnect();
+    gSignUp.onCurrentUserChanged.listen((event) {
+      print(event);
+    });
+  }
+
   @override
   Widget build(BuildContext contxt) {
     return Builder(
@@ -28,7 +54,9 @@ class LandingPage extends StatelessWidget {
                       child: Hero(
                         tag: 'toSignG',
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await gSignUp.signIn();
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -36,7 +64,7 @@ class LandingPage extends StatelessWidget {
                                 padding: const EdgeInsets.only(right: 25),
                                 child: Image.asset(
                                   resourceHelper[1],
-                                  height: 30,
+                                  height: 28,
                                 ),
                               ),
                               Text('Sign up using Google'),
@@ -95,14 +123,6 @@ class LandingPage extends StatelessWidget {
   }
 }
 
-Map<String, String> formData = {
-  'email': null,
-  'password': null,
-  'name': null,
-  'userName': null,
-  'rePwd': null,
-};
-
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -110,100 +130,119 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   GlobalKey<FormState> _formKey = GlobalKey();
+  bool isLoad = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: screenH * 0.2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 15),
-                    child: Image.asset(
-                      resourceHelper[0],
-                      height: 34,
-                    ),
-                  ),
-                  Text(
-                    'Welcome to $kAppName',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        .copyWith(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenH * 0.12),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: AbsorbPointer(
+            absorbing: isLoad,
+            child: Column(
+              children: [
+                SizedBox(height: screenH * 0.2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        'Email',
-                        style: Theme.of(context).textTheme.headline5,
+                      padding: const EdgeInsets.only(right: 15),
+                      child: Image.asset(
+                        resourceHelper[0],
+                        height: 34,
                       ),
                     ),
-                    buildTextFields(context, 1),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        'Password',
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                    ),
-                    buildTextFields(context, 2),
-                  ],
-                ),
-              ),
-              SizedBox(height: screenH * 0.05),
-              Hero(
-                tag: 'toSignUp',
-                child: RaisedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState.validate()) return;
-                    print(formData);
-                    otp(context);
-                  },
-                  child: Text('Next'),
-                ),
-              ),
-              SizedBox(height: screenH * 0.14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already have an account? ',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => LogIn(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Log in',
+                    Text(
+                      'Welcome to $kAppName',
                       style: Theme.of(context)
                           .textTheme
-                          .subtitle2
-                          .copyWith(color: Colors.blue[600]),
+                          .headline5
+                          .copyWith(color: Colors.grey[600]),
                     ),
+                  ],
+                ),
+                SizedBox(height: screenH * 0.12),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          'Email',
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ),
+                      buildTextFields(context, 1),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          'Password',
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ),
+                      buildTextFields(context, 2),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+                SizedBox(height: screenH * 0.05),
+                Hero(
+                  tag: 'toSignUp',
+                  child: RaisedButton(
+                    onPressed: () async {
+                      if (!_formKey.currentState.validate() || isLoad) return;
+                      // TODO: toDelete
+                      print(formData);
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      setState(() {
+                        isLoad = true;
+                      });
+                      int res = await Provider.of<Auth>(context, listen: false)
+                          .signUp(formData['email'], formData['password']);
+                      if (res > -10 && mounted) {
+                        setState(() {
+                          isLoad = false;
+                        });
+                        if (res == 200)
+                          otp(context, 1);
+                        else if (res == 400 || res == 406)
+                          showMyDialog(context, 'Email already in use!');
+                        else
+                          showMyDialog(context, 'Something went wrong');
+                      }
+                    },
+                    child: isLoad ? myProgressIndicator() : Text('Next'),
+                  ),
+                ),
+                SizedBox(height: screenH * 0.14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => LogIn(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Log in',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle2
+                            .copyWith(color: Colors.blue[600]),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -218,138 +257,172 @@ class LogIn extends StatefulWidget {
 
 class _LogInState extends State<LogIn> {
   GlobalKey<FormState> _formKey = GlobalKey();
+  bool isLoad = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: screenH * 0.12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 15),
-                    child: Image.asset(
-                      resourceHelper[0],
-                      height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: AbsorbPointer(
+            absorbing: isLoad,
+            child: Column(
+              children: [
+                SizedBox(height: screenH * 0.12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 15),
+                      child: Image.asset(
+                        resourceHelper[0],
+                        height: 34,
+                      ),
+                    ),
+                    Text(
+                      'Welcome back to $kAppName',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          .copyWith(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+                SizedBox(height: screenH * 0.1),
+                Hero(
+                  tag: 'toSignG',
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 25),
+                          child: Image.asset(
+                            resourceHelper[1],
+                            height: 28,
+                          ),
+                        ),
+                        Text('Login using Google'),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Welcome back to $kAppName',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        .copyWith(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenH * 0.1),
-              Hero(
-                tag: 'toSignG',
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: MyDivider(),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 25),
-                        child: Image.asset(
-                          resourceHelper[1],
-                          height: 30,
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          'User name/ Email',
+                          style: Theme.of(context).textTheme.headline5,
                         ),
                       ),
-                      Text('Login using Google'),
+                      buildTextFields(context, 6),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          'Password',
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ),
+                      buildTextFields(context, 2),
+                      Hero(
+                        tag: 'toFPwd',
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ForgotPwd(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Forgot password?',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: MyDivider(),
-              ),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: screenH * 0.04),
+                Hero(
+                  tag: 'toLogin',
+                  child: RaisedButton(
+                    onPressed: () async {
+                      if (!_formKey.currentState.validate() || isLoad) return;
+                      // TODO: toDelete
+                      print(formData);
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      setState(() {
+                        isLoad = true;
+                      });
+                      int res = await Provider.of<Auth>(context, listen: false)
+                          .login(formData['userName'], formData['password']);
+                      if (res > -10 && mounted) {
+                        setState(() {
+                          isLoad = false;
+                        });
+                        if (res == 200)
+                          // TODO: Entry point login
+                          return;
+                        else if (res == 300) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SetProfile(),
+                            ),
+                          );
+                          showMyDialog(context, 'Please complete your profile');
+                        } else if (res == 400)
+                          showMyDialog(context, 'Password is incorrect!');
+                        else if (res == 404)
+                          showMyDialog(context, 'User not found');
+                        else if (res == 406) {
+                          otp(context, 1);
+                          Fluttertoast.showToast(
+                              msg: 'Please verify your account!');
+                        } else
+                          showMyDialog(context, 'Something went wrong');
+                      }
+                    },
+                    child: isLoad ? myProgressIndicator() : Text('Login'),
+                  ),
+                ),
+                SizedBox(height: screenH * 0.06),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        'Email',
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
+                    Text(
+                      'New user? ',
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
-                    buildTextFields(context, 1),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        'Password',
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                    ),
-                    buildTextFields(context, 2),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(
+                        Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) => ForgetPwd(),
+                            builder: (context) => SignUp(),
                           ),
                         );
                       },
-                      child: Hero(
-                        tag: 'toFPwd',
-                        child: Text(
-                          'Forget password?',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
+                      child: Text(
+                        'Sign up',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle2
+                            .copyWith(color: Colors.blue[600]),
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: screenH * 0.04),
-              Hero(
-                tag: 'toLogin',
-                child: RaisedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState.validate()) return;
-                    print(formData);
-                  },
-                  child: Text('Login'),
-                ),
-              ),
-              SizedBox(height: screenH * 0.06),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'New user? ',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => SignUp(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Sign up',
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2
-                          .copyWith(color: Colors.blue[600]),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -357,13 +430,14 @@ class _LogInState extends State<LogIn> {
   }
 }
 
-class ForgetPwd extends StatefulWidget {
+class ForgotPwd extends StatefulWidget {
   @override
-  _ForgetPwdState createState() => _ForgetPwdState();
+  _ForgotPwdState createState() => _ForgotPwdState();
 }
 
-class _ForgetPwdState extends State<ForgetPwd> {
+class _ForgotPwdState extends State<ForgotPwd> {
   GlobalKey<FormState> _formKey = GlobalKey();
+  bool isLoad = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -391,30 +465,40 @@ class _ForgetPwdState extends State<ForgetPwd> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.only(left: 8, bottom: 1),
                       child: Text(
-                        'Email',
+                        'User name/ Email',
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ),
-                    buildTextFields(context, 1)
+                    buildTextFields(context, 6)
                   ],
                 ),
               ),
-              Hero(
-                tag: 'toRePwd',
-                child: RaisedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState.validate()) return;
-                    print(formData);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ResetPwd(),
-                      ),
-                    );
-                  },
-                  child: Text('Next'),
-                ),
+              RaisedButton(
+                onPressed: () async {
+                  if (!_formKey.currentState.validate() || isLoad) return;
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  // TODO: toDelete
+                  print(formData);
+                  setState(() {
+                    isLoad = true;
+                  });
+                  int res = await Provider.of<Auth>(context, listen: false)
+                      .forgotPwd(formData['userName']);
+                  if (res > -10 && mounted) {
+                    setState(() {
+                      isLoad = false;
+                    });
+                    if (res == 200)
+                      otp(context, 2);
+                    else if (res == 404)
+                      showMyDialog(context, 'User not found');
+                    else
+                      showMyDialog(context, 'Something went wrong');
+                  }
+                },
+                child: isLoad ? myProgressIndicator() : Text('Next'),
               ),
             ],
           ),
@@ -431,25 +515,21 @@ class ResetPwd extends StatefulWidget {
 
 class _ResetPwdState extends State<ResetPwd> {
   GlobalKey<FormState> _formKey = GlobalKey();
+  bool isLoad = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
               SizedBox(height: screenH * 0.04),
-              Hero(
-                tag: 'toFPwd',
-                child: Icon(
-                  Icons.vpn_key_outlined,
-                  size: 100,
-                  color: Theme.of(context).textTheme.headline4.color,
-                ),
+              Icon(
+                Icons.vpn_key_outlined,
+                size: 100,
+                color: Theme.of(context).textTheme.headline4.color,
               ),
               Text('Create new password',
                   style: Theme.of(context).textTheme.headline4),
@@ -479,15 +559,31 @@ class _ResetPwdState extends State<ResetPwd> {
                 ),
               ),
               SizedBox(height: screenH * 0.03),
-              Hero(
-                tag: 'toRePwd',
-                child: RaisedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState.validate()) return;
-                    print(formData);
-                  },
-                  child: Text('Create password'),
-                ),
+              RaisedButton(
+                onPressed: () async {
+                  if (!_formKey.currentState.validate() || isLoad) return;
+                  // TODO: toDelete
+                  print(formData);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    isLoad = true;
+                  });
+                  // TODO: reset password
+                  // int res = await Provider.of<Auth>(context, listen: false)
+                  //     .resetPwd(formData['email'], formData['password']);
+                  // if (res > -10 && mounted) {
+                  //   setState(() {
+                  //     isLoad = false;
+                  //   });
+                  // if (res == 200)
+                  //   otp(context, 1);
+                  // else if (res == 400 || res == 406)
+                  //   showMyDialog(context, 'Email already in use!');
+                  // else
+                  //   showMyDialog(context, 'Something went wrong');
+                  //   }
+                },
+                child: isLoad ? myProgressIndicator() : Text('Create password'),
               ),
             ],
           ),
@@ -497,12 +593,139 @@ class _ResetPwdState extends State<ResetPwd> {
   }
 }
 
-otp(BuildContext context) async {
-  bool isL = false;
-  int code;
+class SetProfile extends StatefulWidget {
+  @override
+  _SetProfileState createState() => _SetProfileState();
+}
+
+class _SetProfileState extends State<SetProfile> {
+  GlobalKey<FormState> _formKey = GlobalKey();
+  bool isLoad = false;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: screenH * 0.12, bottom: 10),
+                child: Text('Account sucessfully created',
+                    style: Theme.of(context).textTheme.headline6),
+              ),
+              Text('Please fill required details',
+                  style: Theme.of(context).textTheme.headline4),
+              SizedBox(height: screenH * 0.1),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        'Name',
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
+                    ),
+                    buildTextFields(context, 3),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        'User name',
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
+                    ),
+                    buildTextFields(context, 4),
+                  ],
+                ),
+              ),
+              SizedBox(height: screenH * 0.03),
+              RaisedButton(
+                onPressed: () async {
+                  if (!_formKey.currentState.validate() || isLoad) return;
+                  // TODO: toDelete
+                  print(formData);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  setState(() {
+                    isLoad = true;
+                  });
+                  int res = await Provider.of<Auth>(context, listen: false)
+                      .setProfile(formData['email'], formData['name'],
+                          formData['userName']);
+                  if (res > -10 && mounted) {
+                    setState(() {
+                      isLoad = false;
+                    });
+                    if (res == 200)
+                      // TODO: Entry point signup
+                      return;
+                    else if (res == 202)
+                      Fluttertoast.showToast(
+                          msg:
+                              'User name ${formData['userName']} is not available');
+                    else if (res == 400) {
+                      Navigator.pop(context);
+                      showMyDialog(context, 'You are not verified!');
+                    } else
+                      showMyDialog(context, 'Something went wrong');
+                  }
+                },
+                child: isLoad ? myProgressIndicator() : Text('Done'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+otp(BuildContext context, int type) async {
+  bool isTime = false, isLoad = false;
+  String error;
+  int code, clock;
+  Timer time, clockTimer;
+  // ignore: missing_return
+  Future<int> submitOTP() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    // email ONLY
+    int res = await Provider.of<Auth>(context, listen: false)
+        .otpSignUp(formData['email'], code);
+
+// TODO: toDelete
+    print(formData);
+    if (res > -10) {
+      if (res == 202) {
+        if (type == 1) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => SetProfile(),
+            ),
+          );
+        } else if (type == 2) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ResetPwd(),
+            ),
+          );
+        }
+        return 0;
+      } else if (res == 400) {
+        return 1;
+      } else {
+        Fluttertoast.showToast(msg: 'Can\'t establish any connection');
+        return 2;
+      }
+    }
+  }
+
   return showModalBottomSheet(
     isDismissible: false,
     enableDrag: false,
+    // @important
+    isScrollControlled: true,
     elevation: double.infinity,
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     context: context,
@@ -514,15 +737,188 @@ otp(BuildContext context) async {
     ),
     builder: (context) {
       return StatefulBuilder(
-        builder: (context, reset) {
-          return Container(
-            height: 200,
+        builder: (cxt, reset) {
+          decreaseClock() {
+            if (clock > 0) {
+              reset(() {
+                clock--;
+              });
+              clockTimer = Timer(Duration(seconds: 1), () {
+                decreaseClock();
+              });
+            }
+          }
+
+          return AnimatedPadding(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            // @important
+            padding: EdgeInsets.fromLTRB(
+                75, 30, 75, MediaQuery.of(context).viewInsets.bottom + 30),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              runSpacing: 22,
+              children: [
+                Text('OTP verification',
+                    style: Theme.of(context).textTheme.headline4),
+                Column(
+                  children: [
+                    Text(
+                      'OTP has been sent to',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        formData['email']
+                            .toString()
+                            .replaceAll(RegExp(r'(?<=.{1}).(?=.*@)'), '*'),
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Incorrect? ',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (type == 1)
+                              _emailController.clear();
+                            else if (type == 2) _uNameController.clear();
+                            if (time != null) time.cancel();
+                            if (clockTimer != null) clockTimer.cancel();
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'Change it',
+                            style: Theme.of(context)
+                                .textTheme
+                                .subtitle2
+                                .copyWith(color: Colors.blue[600]),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                PinCodeTextField(
+                  onCompleted: (value) async {
+                    if (isLoad) return;
+                    isLoad = true;
+                    reset(() {});
+                    int rep = await submitOTP();
+                    if (rep > -5) {
+                      isLoad = false;
+                      if (rep == 1) error = 'Incorrect OTP';
+                      reset(() {});
+                    }
+                  },
+                  autovalidateMode: AutovalidateMode.always,
+                  validator: (value) => error,
+                  enableActiveFill: true,
+                  pinTheme: PinTheme(
+                    borderRadius: BorderRadius.circular(8),
+                    shape: PinCodeFieldShape.box,
+                    fieldWidth: 65,
+                    fieldHeight: 65,
+                    activeColor: Colors.transparent,
+                    disabledColor: Colors.transparent,
+                    inactiveColor: Colors.transparent,
+                    selectedColor: Colors.transparent,
+                    activeFillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
+                    inactiveFillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
+                    selectedFillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
+                  ),
+                  appContext: context,
+                  length: 4,
+                  onChanged: (value) {
+                    code = int.tryParse(value);
+                    if (error != null)
+                      reset(() {
+                        error = null;
+                      });
+                  },
+                  animationType: AnimationType.scale,
+                  autoFocus: true,
+                  backgroundColor: Colors.transparent,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp('[0-9]'),
+                    ),
+                  ],
+                  beforeTextPaste: (pasteTxt) {
+                    if (int.tryParse(pasteTxt) != null && pasteTxt.length == 4)
+                      return true;
+                    else
+                      return false;
+                  },
+                  keyboardType: TextInputType.number,
+                  textStyle: Theme.of(context)
+                      .textTheme
+                      .headline5
+                      .copyWith(fontWeight: FontWeight.w700),
+                  pastedTextStyle: Theme.of(context)
+                      .textTheme
+                      .headline5
+                      .copyWith(fontWeight: FontWeight.w700),
+                ),
+                RaisedButton(
+                  onPressed: () {
+                    if (code == null || error != null || code <= 999 || isLoad)
+                      return;
+                    submitOTP();
+                    reset(() {
+                      isLoad = true;
+                    });
+                  },
+                  child: isLoad ? myProgressIndicator() : Text('Verify'),
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: GestureDetector(
+                    onTap: isTime
+                        ? null
+                        : () {
+                            isTime = true;
+                            clock = 41;
+                            decreaseClock();
+                            time = Timer(
+                              Duration(seconds: 40),
+                              () {
+                                isTime = false;
+                                clock = 0;
+                                reset(() {});
+                              },
+                            );
+                            Provider.of<Auth>(context, listen: false)
+                                .resendOtp(formData['email']);
+                          },
+                    child: Text(
+                      isTime ? '00:$clock' : 'Resend OTP',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          .copyWith(fontSize: 18),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       );
     },
   );
 }
+
+var _emailController = TextEditingController();
+var _uNameController = TextEditingController();
 
 buildTextFields(BuildContext context, int type) {
 /*types:
@@ -531,6 +927,7 @@ buildTextFields(BuildContext context, int type) {
   3 for name
   4 for username
   5 for confirm password
+  6 for email/username
   enum would have been better...nah*/
   String hintTxt(type) {
     switch (type) {
@@ -544,6 +941,8 @@ buildTextFields(BuildContext context, int type) {
         return 'Unique username';
       case 5:
         return 'Re-enter password';
+      case 6:
+        return 'Enter your user name/ email';
       default:
         return '';
     }
@@ -568,15 +967,16 @@ buildTextFields(BuildContext context, int type) {
           return null;
         break;
       case 3:
-        if (!RegExp(r'^[A-Z][a-z A-Z]{1,20}$').hasMatch(value))
-          return 'Only 20 alphabets are allowed';
+        if (value.isEmpty) return 'Name can\'t be empty';
+        if (!RegExp(r'^[a-z A-Z]{1,20}$').hasMatch(value))
+          return 'Upto 20 alphabets are allowed';
         else
           return null;
         break;
       case 4:
         if (value.isEmpty) return 'Dots and underscores are allowed';
-        if (value.length > 12 || value.length < 2)
-          return 'Allowed character range is 2-12';
+        if (value.length > 12 || value.length < 3)
+          return 'Allowed character range is 3-12';
         if (!RegExp(r'^[0-9a-z._]{2,12}$').hasMatch(value))
           return 'Alphabets, numbers, dots and underscores are allowed only';
         else
@@ -588,6 +988,12 @@ buildTextFields(BuildContext context, int type) {
         else
           return null;
         break;
+      case 6:
+        if (value.isEmpty)
+          return 'Invalid';
+        else
+          return null;
+        break;
       default:
         return null;
     }
@@ -596,6 +1002,8 @@ buildTextFields(BuildContext context, int type) {
   TextInputType keyboard(type) {
     switch (type) {
       case 1:
+        return TextInputType.emailAddress;
+      case 6:
         return TextInputType.emailAddress;
       case 2:
         return TextInputType.visiblePassword;
@@ -625,6 +1033,9 @@ buildTextFields(BuildContext context, int type) {
       case 5:
         formData['rePwd'] = value;
         break;
+      case 6:
+        formData['userName'] = value;
+        break;
     }
   }
 
@@ -644,6 +1055,13 @@ buildTextFields(BuildContext context, int type) {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextFormField(
+        textCapitalization:
+            type == 3 ? TextCapitalization.words : TextCapitalization.none,
+        controller: type == 1
+            ? type == 6
+                ? _uNameController
+                : _emailController
+            : null,
         autovalidateMode: type == 4
             ? AutovalidateMode.always
             : AutovalidateMode.onUserInteraction,
@@ -673,15 +1091,25 @@ buildTextFields(BuildContext context, int type) {
   );
 }
 
+Widget myProgressIndicator() {
+  return Container(
+    height: 20,
+    width: 20,
+    child: CircularProgressIndicator(
+      backgroundColor: Colors.transparent,
+      valueColor: AlwaysStoppedAnimation(Colors.white),
+      strokeWidth: 2,
+    ),
+  );
+}
+
 class MyDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: Divider(
-            thickness: 2,
-          ),
+          child: Divider(),
         ),
         Padding(
           padding: const EdgeInsets.all(16),
@@ -691,9 +1119,7 @@ class MyDivider extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: Divider(
-            thickness: 2,
-          ),
+          child: Divider(),
         ),
       ],
     );
