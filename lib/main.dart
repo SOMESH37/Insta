@@ -2,13 +2,8 @@ import 'helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // SystemChrome.setSystemUIOverlayStyle(
-  //   SystemUiOverlayStyle(statusBarColor: Colors.transparent),
-  // );
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.portraitUp,
-  ]);
+  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+  // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(App());
 }
 
@@ -23,6 +18,9 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => Auth(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => BottomNavBar(),
+        ),
       ],
       builder: (cxt, _) {
         return NotificationListener<OverscrollIndicatorNotification>(
@@ -31,8 +29,10 @@ class App extends StatelessWidget {
             return;
           },
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            // debugShowMaterialGrid: true,
             theme: Provider.of<MyTheme>(cxt).currentTheme,
-            home: LandingPage(),
+            home: true ? Main() : LandingPage(),
           ),
         );
       },

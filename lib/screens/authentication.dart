@@ -2,9 +2,10 @@ import '../helper.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-GoogleSignIn gSignUp = GoogleSignIn(scopes: ['email', 'profile']);
+GoogleSignIn gSignUp =
+    GoogleSignIn(scopes: ['email', 'profile', 'https://www.googleapis.com/auth/contacts.readonly']);
 GoogleSignInAccount cAccount;
-
+bool isGoogle = false;
 Map<String, String> formData = {
   'email': null,
   'password': null,
@@ -40,7 +41,7 @@ class _LandingPageState extends State<LandingPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Image.asset(
-                resourceHelper[0],
+                resourceHelper[2],
                 height: 170,
               ),
               SizedBox(),
@@ -49,26 +50,29 @@ class _LandingPageState extends State<LandingPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Hero(
-                        tag: 'toSignG',
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await gSignUp.signIn();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 25),
-                                child: Image.asset(
-                                  resourceHelper[1],
-                                  height: 28,
+                    Visibility(
+                      visible: isGoogle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: Hero(
+                          tag: 'toSignG',
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await gSignUp.signIn();
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 25),
+                                  child: Image.asset(
+                                    resourceHelper[3],
+                                    height: 28,
+                                  ),
                                 ),
-                              ),
-                              Text('Sign up using Google'),
-                            ],
+                                Text('Sign up using Google'),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -148,16 +152,14 @@ class _SignUpState extends State<SignUp> {
                     Padding(
                       padding: const EdgeInsets.only(right: 15),
                       child: Image.asset(
-                        resourceHelper[0],
+                        resourceHelper[2],
                         height: 34,
                       ),
                     ),
                     Text(
                       'Welcome to $kAppName',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline5
-                          .copyWith(color: Colors.grey[600]),
+                      style:
+                          Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -215,7 +217,7 @@ class _SignUpState extends State<SignUp> {
                     child: isLoad ? myProgressIndicator() : Text('Next'),
                   ),
                 ),
-                SizedBox(height: screenH * 0.14),
+                SizedBox(height: screenH * 0.12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -233,10 +235,8 @@ class _SignUpState extends State<SignUp> {
                       },
                       child: Text(
                         'Log in',
-                        style: Theme.of(context)
-                            .textTheme
-                            .subtitle2
-                            .copyWith(color: Colors.blue[600]),
+                        style:
+                            Theme.of(context).textTheme.subtitle2.copyWith(color: Colors.blue[600]),
                       ),
                     ),
                   ],
@@ -268,49 +268,54 @@ class _LogInState extends State<LogIn> {
             absorbing: isLoad,
             child: Column(
               children: [
-                SizedBox(height: screenH * 0.12),
+                SizedBox(height: screenH * (isGoogle ? 0.12 : 0.2)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 15),
                       child: Image.asset(
-                        resourceHelper[0],
+                        resourceHelper[2],
                         height: 34,
                       ),
                     ),
                     Text(
                       'Welcome back to $kAppName',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline5
-                          .copyWith(color: Colors.grey[600]),
+                      style:
+                          Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
-                SizedBox(height: screenH * 0.1),
-                Hero(
-                  tag: 'toSignG',
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 25),
-                          child: Image.asset(
-                            resourceHelper[1],
-                            height: 28,
+                SizedBox(height: screenH * (isGoogle ? 0.1 : 0.12)),
+                Visibility(
+                  visible: isGoogle,
+                  child: Column(
+                    children: [
+                      Hero(
+                        tag: 'toSignG',
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 25),
+                                child: Image.asset(
+                                  resourceHelper[3],
+                                  height: 28,
+                                ),
+                              ),
+                              Text('Login using Google'),
+                            ],
                           ),
                         ),
-                        Text('Login using Google'),
-                      ],
-                    ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: MyDivider(),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: MyDivider(),
                 ),
                 Form(
                   key: _formKey,
@@ -333,6 +338,7 @@ class _LogInState extends State<LogIn> {
                         ),
                       ),
                       buildTextFields(context, 2),
+                      SizedBox(height: screenH * 0.012),
                       Hero(
                         tag: 'toFPwd',
                         child: GestureDetector(
@@ -386,8 +392,7 @@ class _LogInState extends State<LogIn> {
                           showMyDialog(context, 'User not found');
                         else if (res == 406) {
                           otp(context, 1);
-                          Fluttertoast.showToast(
-                              msg: 'Please verify your account!');
+                          toast(context, 'Please verify your account!');
                         } else
                           showMyDialog(context, 'Something went wrong');
                       }
@@ -395,7 +400,7 @@ class _LogInState extends State<LogIn> {
                     child: isLoad ? myProgressIndicator() : Text('Login'),
                   ),
                 ),
-                SizedBox(height: screenH * 0.06),
+                SizedBox(height: screenH * (isGoogle ? 0.05 : 0.12)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -413,10 +418,8 @@ class _LogInState extends State<LogIn> {
                       },
                       child: Text(
                         'Sign up',
-                        style: Theme.of(context)
-                            .textTheme
-                            .subtitle2
-                            .copyWith(color: Colors.blue[600]),
+                        style:
+                            Theme.of(context).textTheme.subtitle2.copyWith(color: Colors.blue[600]),
                       ),
                     ),
                   ],
@@ -456,8 +459,7 @@ class _ForgotPwdState extends State<ForgotPwd> {
                   color: Theme.of(context).textTheme.headline4.color,
                 ),
               ),
-              Text('Reset password',
-                  style: Theme.of(context).textTheme.headline4),
+              Text('Reset password', style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.08),
               Form(
                 key: _formKey,
@@ -475,6 +477,7 @@ class _ForgotPwdState extends State<ForgotPwd> {
                   ],
                 ),
               ),
+              SizedBox(height: screenH * 0.016),
               RaisedButton(
                 onPressed: () async {
                   if (!_formKey.currentState.validate() || isLoad) return;
@@ -531,8 +534,7 @@ class _ResetPwdState extends State<ResetPwd> {
                 size: 100,
                 color: Theme.of(context).textTheme.headline4.color,
               ),
-              Text('Create new password',
-                  style: Theme.of(context).textTheme.headline4),
+              Text('Create new password', style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.1),
               Form(
                 key: _formKey,
@@ -614,8 +616,7 @@ class _SetProfileState extends State<SetProfile> {
                 child: Text('Account sucessfully created',
                     style: Theme.of(context).textTheme.headline6),
               ),
-              Text('Please fill required details',
-                  style: Theme.of(context).textTheme.headline4),
+              Text('Please fill required details', style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.1),
               Form(
                 key: _formKey,
@@ -652,8 +653,7 @@ class _SetProfileState extends State<SetProfile> {
                     isLoad = true;
                   });
                   int res = await Provider.of<Auth>(context, listen: false)
-                      .setProfile(formData['email'], formData['name'],
-                          formData['userName']);
+                      .setProfile(formData['email'], formData['name'], formData['userName']);
                   if (res > -10 && mounted) {
                     setState(() {
                       isLoad = false;
@@ -662,9 +662,7 @@ class _SetProfileState extends State<SetProfile> {
                       // TODO: Entry point signup
                       return;
                     else if (res == 202)
-                      Fluttertoast.showToast(
-                          msg:
-                              'User name ${formData['userName']} is not available');
+                      toast(context, 'User name ${formData['userName']} is not available');
                     else if (res == 400) {
                       Navigator.pop(context);
                       showMyDialog(context, 'You are not verified!');
@@ -691,8 +689,7 @@ otp(BuildContext context, int type) async {
   Future<int> submitOTP() async {
     FocusScope.of(context).requestFocus(FocusNode());
     // email ONLY
-    int res = await Provider.of<Auth>(context, listen: false)
-        .otpSignUp(formData['email'], code);
+    int res = await Provider.of<Auth>(context, listen: false).otpSignUp(formData['email'], code);
 
 // TODO: toDelete
     print(formData);
@@ -715,7 +712,7 @@ otp(BuildContext context, int type) async {
       } else if (res == 400) {
         return 1;
       } else {
-        Fluttertoast.showToast(msg: 'Can\'t establish any connection');
+        toast(context, 'Can\'t establish any connection');
         return 2;
       }
     }
@@ -727,7 +724,7 @@ otp(BuildContext context, int type) async {
     // @important
     isScrollControlled: true,
     elevation: double.infinity,
-    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
     context: context,
     clipBehavior: Clip.hardEdge,
     shape: RoundedRectangleBorder(
@@ -749,166 +746,164 @@ otp(BuildContext context, int type) async {
             }
           }
 
-          return AnimatedPadding(
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            // @important
-            padding: EdgeInsets.fromLTRB(
-                75, 30, 75, MediaQuery.of(context).viewInsets.bottom + 30),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              runSpacing: 22,
-              children: [
-                Text('OTP verification',
-                    style: Theme.of(context).textTheme.headline4),
-                Column(
-                  children: [
-                    Text(
-                      'OTP has been sent to',
-                      style: Theme.of(context).textTheme.subtitle1,
+          return AbsorbPointer(
+            absorbing: isLoad,
+            child: AnimatedPadding(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+              // @important
+              padding:
+                  EdgeInsets.fromLTRB(75, 30, 75, MediaQuery.of(context).viewInsets.bottom + 30),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                runSpacing: 22,
+                children: [
+                  Text('OTP verification', style: Theme.of(context).textTheme.headline4),
+                  Column(
+                    children: [
+                      Text(
+                        'OTP has been sent to',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Text(
+                          formData['email']
+                              .toString()
+                              .replaceAll(RegExp(r'(?<=.{1}).(?=.*@)'), '*'),
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Incorrect? ',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (type == 1)
+                                _emailController.clear();
+                              else if (type == 2) _uNameController.clear();
+                              if (time != null) time.cancel();
+                              if (clockTimer != null) clockTimer.cancel();
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Change it',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .copyWith(color: Colors.blue[600]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  PinCodeTextField(
+                    onCompleted: (value) async {
+                      if (isLoad) return;
+                      reset(() {
+                        isLoad = true;
+                      });
+                      int rep = await submitOTP();
+                      if (rep > -5) {
+                        isLoad = false;
+                        if (rep == 1) error = 'Incorrect OTP';
+                        reset(() {});
+                      }
+                    },
+                    autovalidateMode: AutovalidateMode.always,
+                    validator: (value) => error,
+                    enableActiveFill: true,
+                    cursorColor: Theme.of(context).scaffoldBackgroundColor,
+                    pinTheme: PinTheme(
+                      borderRadius: BorderRadius.circular(8),
+                      shape: PinCodeFieldShape.box,
+                      fieldWidth: 65,
+                      fieldHeight: 65,
+                      activeColor: Colors.transparent,
+                      disabledColor: Colors.transparent,
+                      inactiveColor: Colors.transparent,
+                      selectedColor: Colors.transparent,
+                      activeFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
+                      inactiveFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
+                      selectedFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
+                    appContext: context,
+                    length: 4,
+                    onChanged: (value) {
+                      code = int.tryParse(value);
+                      if (error != null)
+                        reset(() {
+                          error = null;
+                        });
+                    },
+                    animationType: AnimationType.scale,
+                    autoFocus: true,
+                    backgroundColor: Colors.transparent,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp('[0-9]'),
+                      ),
+                    ],
+                    beforeTextPaste: (pasteTxt) {
+                      if (int.tryParse(pasteTxt) != null && pasteTxt.length == 4)
+                        return true;
+                      else
+                        return false;
+                    },
+                    keyboardType: TextInputType.number,
+                    textStyle:
+                        Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.w700),
+                    pastedTextStyle:
+                        Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  RaisedButton(
+                    onPressed: () async {
+                      if (code == null || error != null || code <= 999 || isLoad) return;
+                      reset(() {
+                        isLoad = true;
+                      });
+                      int rep = await submitOTP();
+                      if (rep > -5) {
+                        isLoad = false;
+                        if (rep == 1) error = 'Incorrect OTP';
+                        reset(() {});
+                      }
+                    },
+                    child: isLoad ? myProgressIndicator() : Text('Verify'),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: GestureDetector(
+                      onTap: isTime
+                          ? null
+                          : () {
+                              isTime = true;
+                              clock = 41;
+                              decreaseClock();
+                              time = Timer(
+                                Duration(seconds: 40),
+                                () {
+                                  isTime = false;
+                                  clock = 0;
+                                  reset(() {});
+                                },
+                              );
+                              Provider.of<Auth>(context, listen: false)
+                                  .resendOtp(formData['email']);
+                            },
                       child: Text(
-                        formData['email']
-                            .toString()
-                            .replaceAll(RegExp(r'(?<=.{1}).(?=.*@)'), '*'),
-                        style: Theme.of(context).textTheme.headline5,
+                        isTime ? '00:$clock' : 'Resend OTP',
+                        style: Theme.of(context).textTheme.headline4.copyWith(fontSize: 18),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Incorrect? ',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            if (type == 1)
-                              _emailController.clear();
-                            else if (type == 2) _uNameController.clear();
-                            if (time != null) time.cancel();
-                            if (clockTimer != null) clockTimer.cancel();
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            'Change it',
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle2
-                                .copyWith(color: Colors.blue[600]),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                PinCodeTextField(
-                  onCompleted: (value) async {
-                    if (isLoad) return;
-                    isLoad = true;
-                    reset(() {});
-                    int rep = await submitOTP();
-                    if (rep > -5) {
-                      isLoad = false;
-                      if (rep == 1) error = 'Incorrect OTP';
-                      reset(() {});
-                    }
-                  },
-                  autovalidateMode: AutovalidateMode.always,
-                  validator: (value) => error,
-                  enableActiveFill: true,
-                  pinTheme: PinTheme(
-                    borderRadius: BorderRadius.circular(8),
-                    shape: PinCodeFieldShape.box,
-                    fieldWidth: 65,
-                    fieldHeight: 65,
-                    activeColor: Colors.transparent,
-                    disabledColor: Colors.transparent,
-                    inactiveColor: Colors.transparent,
-                    selectedColor: Colors.transparent,
-                    activeFillColor:
-                        Theme.of(context).inputDecorationTheme.fillColor,
-                    inactiveFillColor:
-                        Theme.of(context).inputDecorationTheme.fillColor,
-                    selectedFillColor:
-                        Theme.of(context).inputDecorationTheme.fillColor,
                   ),
-                  appContext: context,
-                  length: 4,
-                  onChanged: (value) {
-                    code = int.tryParse(value);
-                    if (error != null)
-                      reset(() {
-                        error = null;
-                      });
-                  },
-                  animationType: AnimationType.scale,
-                  autoFocus: true,
-                  backgroundColor: Colors.transparent,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp('[0-9]'),
-                    ),
-                  ],
-                  beforeTextPaste: (pasteTxt) {
-                    if (int.tryParse(pasteTxt) != null && pasteTxt.length == 4)
-                      return true;
-                    else
-                      return false;
-                  },
-                  keyboardType: TextInputType.number,
-                  textStyle: Theme.of(context)
-                      .textTheme
-                      .headline5
-                      .copyWith(fontWeight: FontWeight.w700),
-                  pastedTextStyle: Theme.of(context)
-                      .textTheme
-                      .headline5
-                      .copyWith(fontWeight: FontWeight.w700),
-                ),
-                RaisedButton(
-                  onPressed: () {
-                    if (code == null || error != null || code <= 999 || isLoad)
-                      return;
-                    submitOTP();
-                    reset(() {
-                      isLoad = true;
-                    });
-                  },
-                  child: isLoad ? myProgressIndicator() : Text('Verify'),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: GestureDetector(
-                    onTap: isTime
-                        ? null
-                        : () {
-                            isTime = true;
-                            clock = 41;
-                            decreaseClock();
-                            time = Timer(
-                              Duration(seconds: 40),
-                              () {
-                                isTime = false;
-                                clock = 0;
-                                reset(() {});
-                              },
-                            );
-                            Provider.of<Auth>(context, listen: false)
-                                .resendOtp(formData['email']);
-                          },
-                    child: Text(
-                      isTime ? '00:$clock' : 'Resend OTP',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline4
-                          .copyWith(fontSize: 18),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -975,8 +970,7 @@ buildTextFields(BuildContext context, int type) {
         break;
       case 4:
         if (value.isEmpty) return 'Dots and underscores are allowed';
-        if (value.length > 12 || value.length < 3)
-          return 'Allowed character range is 3-12';
+        if (value.length > 12 || value.length < 3) return 'Allowed character range is 3-12';
         if (!RegExp(r'^[0-9a-z._]{2,12}$').hasMatch(value))
           return 'Alphabets, numbers, dots and underscores are allowed only';
         else
@@ -1040,7 +1034,7 @@ buildTextFields(BuildContext context, int type) {
   }
 
   return Padding(
-    padding: const EdgeInsets.fromLTRB(0, 5, 0, 25),
+    padding: const EdgeInsets.fromLTRB(0, 5, 0, 12),
     child: Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -1055,16 +1049,13 @@ buildTextFields(BuildContext context, int type) {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextFormField(
-        textCapitalization:
-            type == 3 ? TextCapitalization.words : TextCapitalization.none,
+        textCapitalization: type == 3 ? TextCapitalization.words : TextCapitalization.none,
         controller: type == 1
             ? type == 6
                 ? _uNameController
                 : _emailController
             : null,
-        autovalidateMode: type == 4
-            ? AutovalidateMode.always
-            : AutovalidateMode.onUserInteraction,
+        autovalidateMode: type == 4 ? AutovalidateMode.always : AutovalidateMode.onUserInteraction,
         inputFormatters: [
           if (type == 3)
             FilteringTextInputFormatter.allow(
@@ -1078,10 +1069,10 @@ buildTextFields(BuildContext context, int type) {
         obscureText: type == 2 || type == 5,
         style: Theme.of(context).textTheme.bodyText2,
         decoration: InputDecoration(
+          // prevents jumping
+          helperText: '',
           hintText: hintTxt(type),
-          errorStyle: type == 4
-              ? TextStyle().copyWith(color: Colors.blue[800])
-              : TextStyle(),
+          errorStyle: type == 4 ? TextStyle().copyWith(color: Colors.blue[800]) : TextStyle(),
         ),
         keyboardType: keyboard(type),
         validator: (value) => validators(type, value),
