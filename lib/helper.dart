@@ -1,30 +1,33 @@
-export 'package:flutter/material.dart';
-export 'package:flutter/services.dart';
-export 'package:provider/provider.dart';
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 export 'dart:async';
 export 'dart:convert';
 export 'dart:math';
+export 'package:flutter/material.dart';
+export 'package:flutter/services.dart';
 export 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-export 'package:shimmer/shimmer.dart';
-export 'providers/auth.dart';
-export 'providers/themes.dart';
+export 'package:image_cropper/image_cropper.dart';
+export 'package:image_picker/image_picker.dart';
+export 'package:provider/provider.dart';
 export 'providers/bottomnavbar.dart';
-export 'screens/home.dart';
-export 'screens/profile.dart';
+export 'providers/themes.dart';
+export 'screens/authentication.dart';
 export 'screens/chat.dart';
 export 'screens/createPost.dart';
-export 'screens/explore.dart';
-export 'screens/noti.dart';
-export 'screens/saved.dart';
 export 'screens/createStory.dart';
-export 'screens/authentication.dart';
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter/services.dart';
-import 'dart:ui';
+export 'screens/explore.dart';
+export 'screens/home.dart';
+export 'screens/filters.dart';
+export 'screens/noti.dart';
+export 'screens/profile.dart';
+export 'screens/saved.dart';
 
-const kurl = 'https://12a8329dfa81.ngrok.io';
+const kurl = 'https://not_deployed.ngrok.io';
 
 const String kAppName = 'Insta';
 
@@ -33,8 +36,19 @@ const List resourceHelper = [
   'resources/loading.png',
   'resources/logo.png', //app logo
   'resources/google_logo.png', //google logo png
+  'resources/profile.png',
+  'resources/post.png',
+  'resources/story.png',
+  'resources/camera.png',
+  'resources/gallery.png',
+  'resources/profile_dark.png',
+  'resources/groupChat.svg',
+  'resources/comment.svg',
+  'resources/share.svg',
 ];
-
+BuildContext mainContext;
+String currentPreviewImgUrl = '';
+var isPreview = StreamController<bool>();
 double screenH, screenW;
 toast(BuildContext context, String m) {
   return Fluttertoast.showToast(
@@ -44,67 +58,73 @@ toast(BuildContext context, String m) {
   );
 }
 
-Widget zoomImg(BuildContext context, String url) {
-  return Positioned(
-    child: BackdropFilter(
-      filter: ImageFilter.blur(
-        sigmaX: 8,
-        sigmaY: 8,
-      ),
-      child: Container(
-        height: screenH,
-        width: screenW,
-        padding: const EdgeInsets.all(16),
-        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.4),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              ),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-                    child: circularImg(url, 42),
-                  ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Name',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.headline5),
-                        Text('Location',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.headline6),
-                      ],
+class ZoomImg extends StatelessWidget {
+  final url;
+  ZoomImg(this.url);
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 8,
+          sigmaY: 8,
+        ),
+        child: Container(
+          height: screenH,
+          width: screenW,
+          padding: const EdgeInsets.all(16),
+          color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).bottomNavigationBarTheme.backgroundColor.withOpacity(0.96),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                ),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                      child: circularImg('https://picsum.photos/id/525/150', 42),
                     ),
-                  ),
-                ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Dennis Ritchie',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5),
+                          Text('Bronxville, New York',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline6),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(10)),
+                ),
+                child: FadeInImage(
+                  fit: BoxFit.contain,
+                  placeholder: AssetImage(resourceHelper[1]),
+                  image: NetworkImage(url),
+                ),
               ),
-              child: FadeInImage(
-                fit: BoxFit.contain,
-                placeholder: AssetImage(resourceHelper[1]),
-                image: NetworkImage(url),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 Widget circularImg(String url, double size) {
@@ -173,10 +193,14 @@ buildSearchField(BuildContext context, TextEditingController control) {
         RegExp('[ A-Za-z0-9._]'),
       ),
     ],
-    style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
+    style:
+        Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
     decoration: InputDecoration(
       hintText: 'Search',
-      hintStyle: Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
+      hintStyle: Theme.of(context)
+          .textTheme
+          .headline5
+          .copyWith(color: Colors.grey[600]),
       contentPadding: EdgeInsets.zero,
     ),
     keyboardType: TextInputType.name,
@@ -208,7 +232,8 @@ Future onSave(BuildContext cxt) {
                 indent: screenW * 0.44,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
                 child: Row(
                   children: [
                     Text(
@@ -220,7 +245,7 @@ Future onSave(BuildContext cxt) {
                       onPressed: () {
                         newCollection(context);
                       },
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                       padding: EdgeInsets.all(6),
                       shape: StadiumBorder(),
                       label: Row(
@@ -228,12 +253,12 @@ Future onSave(BuildContext cxt) {
                           Icon(
                             Icons.add,
                             size: 24,
-                            color: Colors.grey[600],
+                            color: Colors.grey[400],
                           ),
                           Text(
                             ' New collection',
                             style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.grey[500],
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -246,11 +271,12 @@ Future onSave(BuildContext cxt) {
               ListView.builder(
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
-                itemCount: 10,
+                itemCount: 7,
                 itemBuilder: (cxt, index) => InkWell(
                   onTap: () {},
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 10),
                     child: Row(
                       children: [
                         Padding(
@@ -266,7 +292,8 @@ Future onSave(BuildContext cxt) {
                               child: FadeInImage(
                                 fit: BoxFit.cover,
                                 placeholder: AssetImage(resourceHelper[0]),
-                                image: NetworkImage('https://picsum.photos/id/${710 + index}/100'),
+                                image: NetworkImage(
+                                    'https://picsum.photos/id/${727 + index}/100'),
                               ),
                             ),
                           ),
@@ -298,7 +325,6 @@ Future onSave(BuildContext cxt) {
 }
 
 Future newCollection(BuildContext cxt) {
-  String name = '';
   return showModalBottomSheet(
     isDismissible: false,
     enableDrag: false,
@@ -321,7 +347,8 @@ Future newCollection(BuildContext cxt) {
             child: AnimatedPadding(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeOut,
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -364,8 +391,8 @@ Future newCollection(BuildContext cxt) {
                       child: FadeInImage(
                         fit: BoxFit.cover,
                         placeholder: AssetImage(resourceHelper[1]),
-                        image:
-                            NetworkImage('https://picsum.photos/id/${Random().nextInt(400)}/200'),
+                        image: NetworkImage(
+                            'https://picsum.photos/id/666/250'),
                       ),
                     ),
                   ),
@@ -374,9 +401,6 @@ Future newCollection(BuildContext cxt) {
                     child: Container(
                       width: 140,
                       child: TextField(
-                        onChanged: (v) {
-                          name = v;
-                        },
                         autofocus: true,
                         textAlign: TextAlign.center,
                         inputFormatters: [

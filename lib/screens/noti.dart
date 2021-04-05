@@ -61,38 +61,96 @@ class _NotiState extends State<Noti> {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
             'Activity',
-            style: Theme.of(context).textTheme.headline5.copyWith(letterSpacing: 1),
+            style: Theme.of(context)
+                .textTheme
+                .headline5
+                .copyWith(letterSpacing: 1),
           ),
         ),
-        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        backgroundColor:
+            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            scrollDirection: Axis.horizontal,
-            child: Wrap(
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.spaceBetween,
-              spacing: 10,
+      body: SingleChildScrollView(
+              child: Column(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              scrollDirection: Axis.horizontal,
+              child: Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 10,
+                children: [
+                  for (int i = 1; i < 6; i++) makeChip(i),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (int i = 1; i < 6; i++) makeChip(i),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14),
+                  child: Text('Pending requests',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.headline5),
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Wrap(
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 10,
+                    children: [
+                      for (int i = 1; i < 5; i++) makeReqCard(context),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text('Today',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.headline5),
+                      ),
+                      makeCommentCard(context),
+            SizedBox(height: 4),
+                      makeLikeCard(context),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text('Yesterday',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.headline5),
+                      ),
+                      makeLikeCard(context),
+
+            SizedBox(height: 4),
+                      makeLikeCard(context),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-          Container(
-            height: screenH * 0.7,
-            width: screenW * 0.9,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                makeReqCard(context),
-                makeCommentCard(context),
-                makeLikeCard(context),
-              ],
-            ),
-          ),
-        ],
+            SizedBox(height: 8),
+
+          ],
+        ),
       ),
     );
   }
@@ -101,31 +159,33 @@ class _NotiState extends State<Noti> {
 Widget makeReqCard(BuildContext context) {
   return Container(
     padding: const EdgeInsets.all(16),
-    height: 250,
-    width: 190,
+    height: 246,
+    width: 180,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
       color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
     ),
     child: Column(
       children: [
-        circularImg('https://picsum.photos/id/${Random().nextInt(1000)}/100', 80),
+        circularImg(
+            'https://picsum.photos/id/${Random().nextInt(4)+444}/100', 80),
+            SizedBox(height: 8),
         Text(
-          'Name Lorem',
+          '${allAccounts[Random().nextInt(4)][1]}',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.headline5,
         ),
         Text(
-          'user_name',
+         '${allAccounts[Random().nextInt(4)][2]}',
           style: Theme.of(context).textTheme.headline6,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           width: 136,
-          height: 56,
+          height: 50,
           child: OutlinedButton(
             onPressed: () {},
             child: Text(
@@ -148,7 +208,7 @@ Widget makeReqCard(BuildContext context) {
 
 Widget makeCommentCard(BuildContext context) {
   return Container(
-    padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+    padding: const EdgeInsets.fromLTRB(16, 16, 6, 16),
     width: screenW,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
@@ -158,7 +218,8 @@ Widget makeCommentCard(BuildContext context) {
       children: [
         Padding(
           padding: const EdgeInsets.only(right: 14),
-          child: circularImg('https://picsum.photos/id/${Random().nextInt(1000)}/100', 56),
+          child: circularImg(
+              'https://picsum.photos/id/756/100', 56),
         ),
         Expanded(
           child: Column(
@@ -166,12 +227,12 @@ Widget makeCommentCard(BuildContext context) {
             children: [
               RichText(
                 text: TextSpan(
-                  text: 'Name Lorem pisicing',
+                  text: '${allAccounts[Random().nextInt(4)][1]}',
                   style: Theme.of(context).textTheme.headline5,
                   children: [
                     TextSpan(
                       text: ' • Commented',
-                      style: Theme.of(context).textTheme.headline6,
+                      style: Theme.of(context).textTheme.headline6.copyWith(fontSize: 14),
                     ),
                   ],
                 ),
@@ -179,7 +240,7 @@ Widget makeCommentCard(BuildContext context) {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                    'Laboris laboris elit nostrud id veniam id sunt laboris amet qui. Veniam irure consectetur quis eiusmod. In ipsum eu id duis. Veniam commodo incididunt culpa dolore.'),
+                    'Veniam irure consectetur quis eiusmod. In ipsum eu id duis. Veniam commodo incididunt culpa dolore.'),
               ),
             ],
           ),
@@ -201,20 +262,24 @@ Widget makeLikeCard(BuildContext context) {
       children: [
         Padding(
           padding: const EdgeInsets.only(right: 14),
-          child: circularImg('https://picsum.photos/id/${Random().nextInt(1000)}/100', 56),
+          child: circularImg(
+              'https://picsum.photos/id/${Random().nextInt(3)+999}/100', 56),
         ),
-        Row(
-          children: [
-            Text(
-              'Name Laboris veniam',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-            Text(
-              ' • Liked',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ],
-        ),
+        
+        RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${allAccounts[Random().nextInt(4)][1]}',
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                    TextSpan(
+                      text: ' • Liked',
+                      style: Theme.of(context).textTheme.headline6.copyWith(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
       ],
     ),
   );

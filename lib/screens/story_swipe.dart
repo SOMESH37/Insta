@@ -2,26 +2,67 @@
 import '../helper.dart';
 import 'dart:ui';
 
-List allStories = [
-  for (var i = 1; i < 20; i++)
-    Container(
-      height: screenH,
-      width: screenW,
-      color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-      padding: EdgeInsets.all(100),
-      child: FadeInImage(
-        fit: BoxFit.contain,
-        placeholder: AssetImage(resourceHelper[1]),
-        image: NetworkImage('https://picsum.photos/id/${i + 10}/200'),
+class AStory extends StatelessWidget {
+  final int index;
+  AStory(this.index);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        height: screenH,
+        width: screenW,
+        color: Colors.primaries[index % 17],
+        child: Stack(
+          children: [
+            SafeArea(
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    child: circularImg(
+                        'https://picsum.photos/id/${index + 10}/200', 42),
+                  ),
+                  Text('${allAccounts[index % 3 + 1][2]}',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.headline5),
+                  Spacer(),
+                  IconButton(
+                    splashRadius: 1,
+                    tooltip: 'Close',
+                    color: Theme.of(context)
+                        .bottomNavigationBarTheme
+                        .backgroundColor,
+                    icon: Icon(Icons.close_rounded),
+                    iconSize: 28,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: FadeInImage(
+                width: screenW - 100,
+                fit: BoxFit.contain,
+                fadeInDuration: Duration(milliseconds: 100),
+                fadeOutDuration: Duration(milliseconds: 100),
+                placeholder: AssetImage(resourceHelper[1]),
+                image:
+                    NetworkImage('https://picsum.photos/id/${index + 505}/400'),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-];
+    );
+  }
+}
 
 class StorySwipe extends StatefulWidget {
   final int whichIdx;
-  StorySwipe(
-    this.whichIdx,
-  );
+  StorySwipe(this.whichIdx);
   @override
   _StorySwipeState createState() => _StorySwipeState();
 }
@@ -58,7 +99,7 @@ class _StorySwipeState extends State<StorySwipe> {
       },
       child: PageView.builder(
         controller: _pageController,
-        itemCount: allStories.length,
+        itemCount: 19,
         itemBuilder: (contxt, index) {
           double value;
           if (_pageController.position.haveDimensions == false) {
@@ -66,19 +107,18 @@ class _StorySwipeState extends State<StorySwipe> {
           } else {
             value = _pageController.page;
           }
-          return Hero(
-            transitionOnUserGestures: true,
-            tag: 'toStory${widget.whichIdx}',
-            child: GestureDetector(
-              onVerticalDragEnd: (details) =>
-                  details.velocity.pixelsPerSecond.direction > 0
-                      ? Navigator.pop(context)
-                      : null,
-              child: _SwipeWidget(
-                index: index,
-                pageNotifier: value,
-                child: allStories[index],
-              ),
+          return GestureDetector(
+            onVerticalDragEnd: (details) =>
+                details.velocity.pixelsPerSecond.direction > 0
+                    ? Navigator.pop(context)
+                    : null,
+            child: _SwipeWidget(
+              index: index,
+              pageNotifier: value,
+              child: Hero(
+                  transitionOnUserGestures: true,
+                  tag: 'toStory${widget.whichIdx}',
+                  child: AStory(index)),
             ),
           );
         },
@@ -108,24 +148,13 @@ class _SwipeWidget extends StatelessWidget {
     final isLeaving = (index - pageNotifier) <= 0;
     final t = (index - pageNotifier);
     final rotationY = lerpDouble(0, 90, t);
-    final opacity = lerpDouble(0, 1, t.abs()).clamp(0.0, 1.0);
+    // final opacity = lerpDouble(0, 1, t.abs()).clamp(0.0, 1.0);
     final transform = Matrix4.identity();
     transform.setEntry(3, 2, 0.001);
     transform.rotateY(-degToRad(rotationY));
     return Transform(
-      alignment: isLeaving ? Alignment.centerRight : Alignment.centerLeft,
-      transform: transform,
-      child: Stack(
-        children: [
-          child,
-          Positioned.fill(
-            child: Opacity(
-              opacity: opacity,
-              child: SizedBox.shrink(),
-            ),
-          ),
-        ],
-      ),
-    );
+        alignment: isLeaving ? Alignment.centerRight : Alignment.centerLeft,
+        transform: transform,
+        child: child);
   }
 }

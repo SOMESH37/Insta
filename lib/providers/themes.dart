@@ -152,9 +152,9 @@ class MyTheme extends ChangeNotifier {
   );
   static ThemeData myDark = ThemeData.dark().copyWith(
     chipTheme: ChipThemeData(
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
       labelStyle: TextStyle(
-        color: Colors.black,
+        color: Colors.white,
         fontFamily: 'Gilroy',
         letterSpacing: 0.4,
       ),
@@ -163,10 +163,10 @@ class MyTheme extends ChangeNotifier {
         fontFamily: 'Gilroy',
         letterSpacing: 0.4,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xff1f2930),
       disabledColor: Colors.grey,
       selectedColor: Colors.red, // waste yet @required
-      secondarySelectedColor: Colors.white,
+      secondarySelectedColor: Color(0xff1f2930),
       padding: EdgeInsets.all(10),
       shape: StadiumBorder(),
     ),
@@ -209,17 +209,17 @@ class MyTheme extends ChangeNotifier {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.resolveWith(
-          (states) => Colors.white,
+          (states) => Color(0xff1f2930),
         ),
         elevation: MaterialStateProperty.resolveWith(
           (states) => 0,
         ),
         // bottom 3 r not working
         foregroundColor: MaterialStateProperty.resolveWith(
-          (states) => Colors.grey,
+          (states) => Colors.grey[500],
         ),
         overlayColor: MaterialStateProperty.resolveWith(
-          (states) => Colors.grey,
+          (states) => Colors.grey[500],
         ),
         textStyle: MaterialStateProperty.resolveWith(
           (states) => TextStyle(
@@ -232,8 +232,9 @@ class MyTheme extends ChangeNotifier {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
+        splashFactory: NoSplash.splashFactory,
         side: MaterialStateProperty.resolveWith(
-          (states) => BorderSide(color: Colors.grey[300]),
+          (states) => BorderSide(color: Colors.grey[500]),
         ),
       ),
     ),

@@ -2,10 +2,13 @@ import '../helper.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-GoogleSignIn gSignUp =
-    GoogleSignIn(scopes: ['email', 'profile', 'https://www.googleapis.com/auth/contacts.readonly']);
-GoogleSignInAccount cAccount;
-bool isGoogle = false;
+GoogleSignIn gSignUp = GoogleSignIn(scopes: [
+  'email',
+  'profile',
+  'https://www.googleapis.com/auth/contacts.readonly'
+]);
+// GoogleSignInAccount cAccount;
+bool isGoogle = true;
 Map<String, String> formData = {
   'email': null,
   'password': null,
@@ -20,14 +23,13 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  @override
-  void initState() {
-    super.initState();
-    gSignUp.disconnect();
-    gSignUp.onCurrentUserChanged.listen((event) {
-      print(event);
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   gSignUp.disconnect();
+  //   gSignUp.onCurrentUserChanged.listen((event) {
+  //   });
+  // }
 
   @override
   Widget build(BuildContext contxt) {
@@ -40,6 +42,7 @@ class _LandingPageState extends State<LandingPage> {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+
               Image.asset(
                 resourceHelper[2],
                 height: 170,
@@ -57,8 +60,7 @@ class _LandingPageState extends State<LandingPage> {
                         child: Hero(
                           tag: 'toSignG',
                           child: ElevatedButton(
-                            onPressed: () async {
-                              await gSignUp.signIn();
+                            onPressed: ()  {
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -158,8 +160,10 @@ class _SignUpState extends State<SignUp> {
                     ),
                     Text(
                       'Welcome to $kAppName',
-                      style:
-                          Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          .copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -194,25 +198,9 @@ class _SignUpState extends State<SignUp> {
                   child: RaisedButton(
                     onPressed: () async {
                       if (!_formKey.currentState.validate() || isLoad) return;
-                      // TODO: toDelete
-                      print(formData);
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      setState(() {
-                        isLoad = true;
-                      });
-                      int res = await Provider.of<Auth>(context, listen: false)
-                          .signUp(formData['email'], formData['password']);
-                      if (res > -10 && mounted) {
-                        setState(() {
-                          isLoad = false;
-                        });
-                        if (res == 200)
-                          otp(context, 1);
-                        else if (res == 400 || res == 406)
-                          showMyDialog(context, 'Email already in use!');
-                        else
-                          showMyDialog(context, 'Something went wrong');
-                      }
+
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SetProfile()));
                     },
                     child: isLoad ? myProgressIndicator() : Text('Next'),
                   ),
@@ -235,8 +223,10 @@ class _SignUpState extends State<SignUp> {
                       },
                       child: Text(
                         'Log in',
-                        style:
-                            Theme.of(context).textTheme.subtitle2.copyWith(color: Colors.blue[600]),
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle2
+                            .copyWith(color: Colors.blue[600]),
                       ),
                     ),
                   ],
@@ -281,8 +271,10 @@ class _LogInState extends State<LogIn> {
                     ),
                     Text(
                       'Welcome back to $kAppName',
-                      style:
-                          Theme.of(context).textTheme.headline5.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline5
+                          .copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -364,38 +356,6 @@ class _LogInState extends State<LogIn> {
                   child: RaisedButton(
                     onPressed: () async {
                       if (!_formKey.currentState.validate() || isLoad) return;
-                      // TODO: toDelete
-                      print(formData);
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      setState(() {
-                        isLoad = true;
-                      });
-                      int res = await Provider.of<Auth>(context, listen: false)
-                          .login(formData['userName'], formData['password']);
-                      if (res > -10 && mounted) {
-                        setState(() {
-                          isLoad = false;
-                        });
-                        if (res == 200)
-                          // TODO: Entry point login
-                          return;
-                        else if (res == 300) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => SetProfile(),
-                            ),
-                          );
-                          showMyDialog(context, 'Please complete your profile');
-                        } else if (res == 400)
-                          showMyDialog(context, 'Password is incorrect!');
-                        else if (res == 404)
-                          showMyDialog(context, 'User not found');
-                        else if (res == 406) {
-                          otp(context, 1);
-                          toast(context, 'Please verify your account!');
-                        } else
-                          showMyDialog(context, 'Something went wrong');
-                      }
                     },
                     child: isLoad ? myProgressIndicator() : Text('Login'),
                   ),
@@ -418,8 +378,10 @@ class _LogInState extends State<LogIn> {
                       },
                       child: Text(
                         'Sign up',
-                        style:
-                            Theme.of(context).textTheme.subtitle2.copyWith(color: Colors.blue[600]),
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle2
+                            .copyWith(color: Colors.blue[600]),
                       ),
                     ),
                   ],
@@ -459,7 +421,8 @@ class _ForgotPwdState extends State<ForgotPwd> {
                   color: Theme.of(context).textTheme.headline4.color,
                 ),
               ),
-              Text('Reset password', style: Theme.of(context).textTheme.headline4),
+              Text('Reset password',
+                  style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.08),
               Form(
                 key: _formKey,
@@ -482,24 +445,8 @@ class _ForgotPwdState extends State<ForgotPwd> {
                 onPressed: () async {
                   if (!_formKey.currentState.validate() || isLoad) return;
                   FocusScope.of(context).requestFocus(FocusNode());
-                  // TODO: toDelete
-                  print(formData);
-                  setState(() {
-                    isLoad = true;
-                  });
-                  int res = await Provider.of<Auth>(context, listen: false)
-                      .forgotPwd(formData['userName']);
-                  if (res > -10 && mounted) {
-                    setState(() {
-                      isLoad = false;
-                    });
-                    if (res == 200)
-                      otp(context, 2);
-                    else if (res == 404)
-                      showMyDialog(context, 'User not found');
-                    else
-                      showMyDialog(context, 'Something went wrong');
-                  }
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => ResetPwd()));
                 },
                 child: isLoad ? myProgressIndicator() : Text('Next'),
               ),
@@ -534,7 +481,8 @@ class _ResetPwdState extends State<ResetPwd> {
                 size: 100,
                 color: Theme.of(context).textTheme.headline4.color,
               ),
-              Text('Create new password', style: Theme.of(context).textTheme.headline4),
+              Text('Create new password',
+                  style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.1),
               Form(
                 key: _formKey,
@@ -564,26 +512,6 @@ class _ResetPwdState extends State<ResetPwd> {
               RaisedButton(
                 onPressed: () async {
                   if (!_formKey.currentState.validate() || isLoad) return;
-                  // TODO: toDelete
-                  print(formData);
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  setState(() {
-                    isLoad = true;
-                  });
-                  // TODO: reset password
-                  // int res = await Provider.of<Auth>(context, listen: false)
-                  //     .resetPwd(formData['email'], formData['password']);
-                  // if (res > -10 && mounted) {
-                  //   setState(() {
-                  //     isLoad = false;
-                  //   });
-                  // if (res == 200)
-                  //   otp(context, 1);
-                  // else if (res == 400 || res == 406)
-                  //   showMyDialog(context, 'Email already in use!');
-                  // else
-                  //   showMyDialog(context, 'Something went wrong');
-                  //   }
                 },
                 child: isLoad ? myProgressIndicator() : Text('Create password'),
               ),
@@ -606,17 +534,20 @@ class _SetProfileState extends State<SetProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
+
               Padding(
                 padding: EdgeInsets.only(top: screenH * 0.12, bottom: 10),
                 child: Text('Account sucessfully created',
                     style: Theme.of(context).textTheme.headline6),
               ),
-              Text('Please fill required details', style: Theme.of(context).textTheme.headline4),
+              Text('Please fill required details',
+                  style: Theme.of(context).textTheme.headline4),
               SizedBox(height: screenH * 0.1),
               Form(
                 key: _formKey,
@@ -646,29 +577,6 @@ class _SetProfileState extends State<SetProfile> {
               RaisedButton(
                 onPressed: () async {
                   if (!_formKey.currentState.validate() || isLoad) return;
-                  // TODO: toDelete
-                  print(formData);
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  setState(() {
-                    isLoad = true;
-                  });
-                  int res = await Provider.of<Auth>(context, listen: false)
-                      .setProfile(formData['email'], formData['name'], formData['userName']);
-                  if (res > -10 && mounted) {
-                    setState(() {
-                      isLoad = false;
-                    });
-                    if (res == 200)
-                      // TODO: Entry point signup
-                      return;
-                    else if (res == 202)
-                      toast(context, 'User name ${formData['userName']} is not available');
-                    else if (res == 400) {
-                      Navigator.pop(context);
-                      showMyDialog(context, 'You are not verified!');
-                    } else
-                      showMyDialog(context, 'Something went wrong');
-                  }
                 },
                 child: isLoad ? myProgressIndicator() : Text('Done'),
               ),
@@ -679,7 +587,6 @@ class _SetProfileState extends State<SetProfile> {
     );
   }
 }
-
 otp(BuildContext context, int type) async {
   bool isTime = false, isLoad = false;
   String error;
@@ -688,34 +595,13 @@ otp(BuildContext context, int type) async {
   // ignore: missing_return
   Future<int> submitOTP() async {
     FocusScope.of(context).requestFocus(FocusNode());
-    // email ONLY
-    int res = await Provider.of<Auth>(context, listen: false).otpSignUp(formData['email'], code);
-
-// TODO: toDelete
-    print(formData);
-    if (res > -10) {
-      if (res == 202) {
-        if (type == 1) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => SetProfile(),
-            ),
-          );
-        } else if (type == 2) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ResetPwd(),
-            ),
-          );
-        }
-        return 0;
-      } else if (res == 400) {
-        return 1;
-      } else {
-        toast(context, 'Can\'t establish any connection');
-        return 2;
-      }
-    }
+    if (type == 1)
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => SetProfile()));
+    else if (type == 2)
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ResetPwd()));
+    return 0;
   }
 
   return showModalBottomSheet(
@@ -752,13 +638,14 @@ otp(BuildContext context, int type) async {
               duration: Duration(milliseconds: 300),
               curve: Curves.easeOut,
               // @important
-              padding:
-                  EdgeInsets.fromLTRB(75, 30, 75, MediaQuery.of(context).viewInsets.bottom + 30),
+              padding: EdgeInsets.fromLTRB(
+                  75, 30, 75, MediaQuery.of(context).viewInsets.bottom + 30),
               child: Wrap(
                 alignment: WrapAlignment.center,
                 runSpacing: 22,
                 children: [
-                  Text('OTP verification', style: Theme.of(context).textTheme.headline4),
+                  Text('OTP verification',
+                      style: Theme.of(context).textTheme.headline4),
                   Column(
                     children: [
                       Text(
@@ -828,9 +715,15 @@ otp(BuildContext context, int type) async {
                       disabledColor: Colors.transparent,
                       inactiveColor: Colors.transparent,
                       selectedColor: Colors.transparent,
-                      activeFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
-                      inactiveFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
-                      selectedFillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
+                      activeFillColor: Theme.of(context)
+                          .scaffoldBackgroundColor
+                          .withOpacity(0.2),
+                      inactiveFillColor: Theme.of(context)
+                          .scaffoldBackgroundColor
+                          .withOpacity(0.2),
+                      selectedFillColor: Theme.of(context)
+                          .scaffoldBackgroundColor
+                          .withOpacity(0.2),
                     ),
                     appContext: context,
                     length: 4,
@@ -850,20 +743,28 @@ otp(BuildContext context, int type) async {
                       ),
                     ],
                     beforeTextPaste: (pasteTxt) {
-                      if (int.tryParse(pasteTxt) != null && pasteTxt.length == 4)
+                      if (int.tryParse(pasteTxt) != null &&
+                          pasteTxt.length == 4)
                         return true;
                       else
                         return false;
                     },
                     keyboardType: TextInputType.number,
-                    textStyle:
-                        Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.w700),
-                    pastedTextStyle:
-                        Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.w700),
+                    textStyle: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        .copyWith(fontWeight: FontWeight.w700),
+                    pastedTextStyle: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                   RaisedButton(
                     onPressed: () async {
-                      if (code == null || error != null || code <= 999 || isLoad) return;
+                      if (code == null ||
+                          error != null ||
+                          code <= 999 ||
+                          isLoad) return;
                       reset(() {
                         isLoad = true;
                       });
@@ -893,12 +794,13 @@ otp(BuildContext context, int type) async {
                                   reset(() {});
                                 },
                               );
-                              Provider.of<Auth>(context, listen: false)
-                                  .resendOtp(formData['email']);
                             },
                       child: Text(
                         isTime ? '00:$clock' : 'Resend OTP',
-                        style: Theme.of(context).textTheme.headline4.copyWith(fontSize: 18),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            .copyWith(fontSize: 18),
                       ),
                     ),
                   ),
@@ -970,7 +872,8 @@ buildTextFields(BuildContext context, int type) {
         break;
       case 4:
         if (value.isEmpty) return 'Dots and underscores are allowed';
-        if (value.length > 12 || value.length < 3) return 'Allowed character range is 3-12';
+        if (value.length > 12 || value.length < 3)
+          return 'Allowed character range is 3-12';
         if (!RegExp(r'^[0-9a-z._]{2,12}$').hasMatch(value))
           return 'Alphabets, numbers, dots and underscores are allowed only';
         else
@@ -1049,13 +952,16 @@ buildTextFields(BuildContext context, int type) {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextFormField(
-        textCapitalization: type == 3 ? TextCapitalization.words : TextCapitalization.none,
+        textCapitalization:
+            type == 3 ? TextCapitalization.words : TextCapitalization.none,
         controller: type == 1
             ? type == 6
                 ? _uNameController
                 : _emailController
             : null,
-        autovalidateMode: type == 4 ? AutovalidateMode.always : AutovalidateMode.onUserInteraction,
+        autovalidateMode: type == 4
+            ? AutovalidateMode.always
+            : AutovalidateMode.onUserInteraction,
         inputFormatters: [
           if (type == 3)
             FilteringTextInputFormatter.allow(
@@ -1072,7 +978,9 @@ buildTextFields(BuildContext context, int type) {
           // prevents jumping
           helperText: '',
           hintText: hintTxt(type),
-          errorStyle: type == 4 ? TextStyle().copyWith(color: Colors.blue[800]) : TextStyle(),
+          errorStyle: type == 4
+              ? TextStyle().copyWith(color: Colors.blue[800])
+              : TextStyle(),
         ),
         keyboardType: keyboard(type),
         validator: (value) => validators(type, value),

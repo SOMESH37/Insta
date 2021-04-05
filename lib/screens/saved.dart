@@ -29,24 +29,27 @@ class Saved extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: 18,
-        itemBuilder: (context, index) => collections(context),
+        itemCount: 6,
+        itemBuilder: (context, index) => Collections(index),
       ),
     );
   }
 }
-
-Widget collections(BuildContext context) {
-  return Padding(
+class Collections extends StatelessWidget {
+  final idx;
+  Collections(this.idx);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
       height: 230,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color:  Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
+         if(context.watch<MyTheme>().currentTheme == MyTheme.myLight) BoxShadow(
             color: Colors.blue[50],
             blurRadius: 4,
             spreadRadius: 5,
@@ -66,7 +69,7 @@ Widget collections(BuildContext context) {
                     style: Theme.of(context).textTheme.headline5,
                   ),
                   Text(
-                    '18 posts',
+                    '9 posts',
                     style: Theme.of(context).textTheme.headline6,
                   ),
                 ],
@@ -99,7 +102,7 @@ Widget collections(BuildContext context) {
                     child: FadeInImage(
                       fit: BoxFit.cover,
                       placeholder: AssetImage(resourceHelper[1]),
-                      image: NetworkImage('https://picsum.photos/id/${Random().nextInt(900)}/200'),
+                      image: NetworkImage('https://picsum.photos/id/${index+304 + 6*idx}/200'),
                     ),
                   ),
                 ),
@@ -110,4 +113,5 @@ Widget collections(BuildContext context) {
       ),
     ),
   );
+}
 }

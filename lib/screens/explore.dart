@@ -6,63 +6,85 @@ class Explore extends StatefulWidget {
 }
 
 class _ExploreState extends State<Explore> {
-  bool isPreview = false;
-  int idx;
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: AppBar(
-            title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  Text(
-                    'Search',
-                    style: Theme.of(context).textTheme.headline5.copyWith(letterSpacing: 1),
-                  ),
-                  Spacer(),
-                  Icon(
-                    Icons.search_rounded,
-                  ),
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              Text(
+                'Search',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline5
+                    .copyWith(letterSpacing: 1),
               ),
-            ),
-            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-          ),
-          body: StaggeredGridView.countBuilder(
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
-            crossAxisCount: 3,
-            staggeredTileBuilder: (index) => index % 18 == 0 || index % 18 == 10
-                ? StaggeredTile.count(2, 2)
-                : StaggeredTile.count(1, 1),
-            // inkwell wont work with img and ink.image cant have fadeinimg :(
-            itemBuilder: (context, index) => GestureDetector(
-              onLongPressStart: (_) {
-                idx = index;
-                setState(() {
-                  isPreview = true;
-                });
-              },
-              onLongPressEnd: (details) {
-                setState(() {
-                  isPreview = false;
-                });
-              },
-              onTap: () {},
-              child: FadeInImage(
-                fit: BoxFit.cover,
-                placeholder: AssetImage(
-                    index % 18 == 0 || index % 18 == 10 ? resourceHelper[1] : resourceHelper[0]),
-                image: NetworkImage('https://picsum.photos/id/${index + 263}/400'),
+              Spacer(),
+              Icon(
+                Icons.search_rounded,
               ),
-            ),
+            ],
           ),
         ),
-        if (isPreview) zoomImg(context, 'https://picsum.photos/id/${idx + 263}/400'),
-      ],
+        backgroundColor:
+            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      ),
+      body: StaggeredGridView.countBuilder(
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+        crossAxisCount: 3,
+        staggeredTileBuilder: (index) => index % 18 == 0 || index % 18 == 10
+            ? StaggeredTile.count(2, 2)
+            : StaggeredTile.count(1, 1),
+        itemBuilder: (context, index) => Stack(
+          children: [
+            FadeInImage(
+              fit: BoxFit.cover,
+              placeholder: AssetImage(index % 18 == 0 || index % 18 == 10
+                  ? resourceHelper[1]
+                  : resourceHelper[0]),
+              image:
+                  NetworkImage('https://picsum.photos/id/${index + 263}/600'),
+            ),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  child: GestureDetector(
+                    onLongPressStart: (_) {
+                      currentPreviewImgUrl =
+                          'https://picsum.photos/id/${index + 263}/600';
+                      isPreview.sink.add(true);
+                    },
+                    onLongPressEnd: (details) {
+                      isPreview.sink.add(false);
+                    },
+                  ),
+                  onTap: () {
+                    pushThePost(context, index + 263);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
+}
+
+void pushThePost(BuildContext context, int index) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => Scaffold(
+        appBar: AppBar(),
+        body: SingleChildScrollView(
+          child: APost(index),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+        ),
+      ),
+    ),
+  );
 }

@@ -71,7 +71,6 @@ class _ChatState extends State<Chat> {
 
 class ChatTile extends StatelessWidget {
   final int index;
-  final bool isSeen = Random().nextBool();
   ChatTile(this.index);
   @override
   Widget build(BuildContext context) {
@@ -98,18 +97,18 @@ class ChatTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Name',
+                  '${allAccounts[index%3 + 1][1]}',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: isSeen
+                  style:  index > 4 
                       ? Theme.of(context).textTheme.headline5
                       : Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Laborum exercitation nostru d t e mpor sit enim ipsum ad cupidatat ut.',
+                  'Latest message sent/ delivered. '* 2,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: isSeen
+                  style:  index > 4 
                       ? Theme.of(context).textTheme.headline6
                       : Theme.of(context).textTheme.headline5,
                 ),
@@ -118,7 +117,7 @@ class ChatTile extends StatelessWidget {
           ),
           Container(
             width: 48,
-            child: isSeen
+            child:  index > 4 
                 ? Center(child: Text('${Random().nextInt(59)}m'))
                 : Icon(
                     Icons.circle,
@@ -132,7 +131,7 @@ class ChatTile extends StatelessWidget {
   }
 }
 
-// TODO: temporary chat model
+// temporary chat model
 class MyChats {
   bool sendByMe;
   String msg, time;
